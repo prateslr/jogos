@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -23,7 +25,7 @@ body {
   border-radius: 15px;
   padding: 20px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  background: #fff;
+  background: #40e698;
   overflow: hidden;
 
   display: grid;
@@ -33,7 +35,7 @@ body {
 #gameTitle {
   font-size: 24px;
   font-weight: 600;
-  color: #000;
+  color: #fff;
   margin-bottom: 15px;
 }
 
@@ -88,23 +90,27 @@ body {
 }
 
 .card-front {
-  background-color: #007bff;
+  background-color: #2cbf7a;
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 24px;
-  border: 2px solid #ccc;
 }
 
 .card-back {
-  background-color: #fff;
-  color: #007bff;
+  background: #fff;
+  color: inherit;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 24px;
   transform: rotateY(180deg);
+  
+}
+
+.card-back {
+  transition: color 0.4s ease-in-out;
 }
 
 /* Reset Button */
@@ -161,16 +167,17 @@ button:focus {
 .modal {
   display: none;
   position: fixed;
-  z-index: 1000;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
+
 
 .modal-content {
   background-color: #fff;
@@ -180,9 +187,40 @@ button:focus {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-#retry-button {
-  margin-top: 20px;
+#time-up-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#time-up-modal .modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#time-up-modal img {
+  width: 80px;
+}
+
+#time-up-modal p {
+  font-size: 18px;
+  color: #333;
+}
+
+#time-up-modal button {
   padding: 10px 20px;
+  margin-top: 40px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -192,8 +230,90 @@ button:focus {
   transition: background-color 0.3s ease;
 }
 
-#retry-button:hover {
+#time-up-modal button:hover {
   background-color: #0056b3;
+}
+
+/* Modal Parabens */
+#congrats-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#congrats-modal .modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#congrats-modal h1 {
+  font-size: 24px;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+#congrats-modal p {
+  font-size: 18px;
+  color: #333;
+}
+
+/* Victory Modal */
+#game-completed-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#game-completed-modal .modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#game-completed-modal img {
+  width: 80px;
+}
+
+#game-completed-modal p {
+  font-size: 18px;
+  color: #333;
+}
+
+#game-completed-modal button {
+  padding: 10px 20px;
+  margin-top: 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+}
+
+#game-completed-modal button:hover {
+  background-color: #218838;
 }
 
 /* Partículas de moeda */

@@ -15,17 +15,32 @@
         <div id="board"></div>
         <div class="bottom">
             <button id="reset">Reiniciar Jogo</button>
-            <button id="toggleMode">Modo: Speed</button>
+            <button id="toggleMode" style="display: none;">Modo: Speed</button>
         </div>
     </div>
 
     <div id="time-up-modal" class="modal" style="display: none;">
         <div class="modal-content">
-            <h1>O tempo acabou!</h1>
-            <p>Mas tente novamente!</p>
+            <img src="img/ampulhetapng" alt="ampulheta png">
+            <p>Mas você pode tentar novamente!</p>
             <button id="retry-button">Tentar novamente</button>
         </div>
-    </div>
+    </div>    
+
+    <div id="congrats-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h1>Parabéns!</h1>
+            <p>Você completou esta fase!</p>
+        </div>
+    </div>  
+    
+    <div id="game-completed-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <img src="img/troféu.png" alt="troféu png">
+            <p>Você completou todas as fases do jogo!</p>
+            <button id="restart-button">Voltar ao início</button>
+        </div>
+    </div>    
     
     <script src="script.js"></script>
 </body>

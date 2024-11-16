@@ -66,8 +66,7 @@ function createBoard() {
         cardBack.classList.add('card-back');
         cardBack.innerText = value;
         
-        cardBack.style.backgroundColor = cardColorMap[value];
-        cardBack.style.color = 'white';
+        cardBack.style.color = cardColorMap[value];
 
         cardInner.appendChild(cardFront);
         cardInner.appendChild(cardBack);
@@ -123,10 +122,19 @@ function disableCards() {
     if (matchedCards === cards.length) {
         clearInterval(timerInterval);
         setTimeout(() => {
-            alert(`Você completou a fase ${currentPhase}! Tempo: ${seconds} segundos`);
-            nextPhase();
+            showCongratsModal();
         }, 500);
-    }
+    }        
+}
+
+function showCongratsModal() {
+    const congratsModal = document.getElementById('congrats-modal');
+    congratsModal.style.display = 'flex';
+
+    setTimeout(() => {
+        congratsModal.style.display = 'none';
+        nextPhase();
+    }, 1000);
 }
 
 function generateCoins(cardElement) {
@@ -151,13 +159,68 @@ function generateCoins(cardElement) {
 
 function nextPhase() {
     currentPhase++;
-    if (currentPhase > 6) {
-        playCelebration();
-        alert("Parabéns! Você completou todas as fases!");
-        currentPhase = 1;
+    if (currentPhase > 3) {
+        showGameCompletedModal();
+    } else {
+        createBoard();
     }
-    createBoard();
 }
+
+function showGameCompletedModal() {
+    const gameCompletedModal = document.getElementById('game-completed-modal');
+    gameCompletedModal.style.display = 'flex';
+
+    startConfetti();
+
+    const restartButton = document.getElementById('restart-button');
+    restartButton.addEventListener('click', () => {
+        gameCompletedModal.style.display = 'none';
+        stopConfetti();
+        restartGame();
+    });
+}
+
+let confettiInterval;
+
+function startConfetti() {
+    const confettiContainer = document.getElementById('confetti-container');
+    confettiContainer.innerHTML = '';
+    
+    confettiInterval = setInterval(() => {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.backgroundColor = getRandomColor();
+        confetti.style.animationDuration = Math.random() * 3 + 2 + "s";
+        confettiContainer.appendChild(confetti);
+
+        confetti.addEventListener('animationend', () => {
+            confetti.remove();
+        });
+    }, 100);
+}
+
+function stopConfetti() {
+    clearInterval(confettiInterval);
+    const confettiContainer = document.getElementById('confetti-container');
+    confettiContainer.innerHTML = '';
+}
+
+function getRandomColor() {
+    const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A6", "#FF5733", "#33FFF0"];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function restartGame() {
+    currentPhase = 1;
+    resetGame();
+}
+
+resetButton.addEventListener('click', () => {
+    clearInterval(timerInterval);
+    currentPhase = 1;
+    createBoard();
+});
 
 function unflipCards() {
     setTimeout(() => {
@@ -192,8 +255,25 @@ function startTimer() {
 
 function endGameDueToTimeout() {
     lockBoard = true;
-    alert("O tempo acabou! Tente novamente.");
-    resetGame();
+    const timeUpModal = document.getElementById('time-up-modal');
+    timeUpModal.style.display = 'flex';
+
+    const retryButton = document.getElementById('retry-button');
+    retryButton.addEventListener('click', () => {
+        timeUpModal.style.display = 'none';
+        resetGame();
+    });
+}
+
+function showTimeUpModal() {
+    const timeUpModal = document.getElementById('time-up-modal');
+    timeUpModal.style.display = 'flex';
+
+    const retryButton = document.getElementById('retry-button');
+    retryButton.addEventListener('click', () => {
+        timeUpModal.style.display = 'none';
+        resetGame();
+    });
 }
 
 function resetGame() {
@@ -202,16 +282,13 @@ function resetGame() {
     createBoard();
 }
 
-// Função para alternar entre os modos de jogo
-toggleModeButton.addEventListener('click', () => {
-    isTimedMode = !isTimedMode;
-    toggleModeButton.innerText = isTimedMode ? "Speed" : "Modo: Melhor Tempo";
-    resetGame();
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('time-up-modal').style.display = 'none';
+    document.getElementById('congrats-modal').style.display = 'none';
 });
 
 resetButton.addEventListener('click', resetGame);
 
-// Inicializa o tabuleiro ao carregar
 createBoard();
 
 resetButton.addEventListener('click', () => {
