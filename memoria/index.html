@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="confetti-container"></div>
+
+    <div id="game">
+        <h1 id="gameTitle">Fase 1</h1>
+        <div id="timer">Tempo: <span id="time">0</span> segundos</div>
+        <div id="board"></div>
+        <div class="bottom">
+            <button id="reset">Reiniciar Jogo</button>
+            <button id="toggleMode">Modo: Speed</button>
+        </div>
+    </div>
+
+    <div id="time-up-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h1>O tempo acabou!</h1>
+            <p>Mas tente novamente!</p>
+            <button id="retry-button">Tentar novamente</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

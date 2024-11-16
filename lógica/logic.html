@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafios de Lógica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #game {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input {
+            margin-top: 10px;
+            padding: 8px;
+            width: 80%;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h1>Desafios de Lógica</h1>
+        <div id="question"></div>
+        <input type="text" id="answer" placeholder="Sua resposta" autocomplete="off">
+        <button onclick="checkAnswer()">Enviar</button>
+        <div id="message"></div>
+        <button id="resetButton" onclick="resetGame()" style="display: none;">Jogar Novamente</button>
+    </div>
+    <script>
+        const stages = [
+            {
+                question: "Estou pensando em um número entre 1 e 100.",
+                answer: Math.floor(Math.random() * 100) + 1,
+                type: "number",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Qual é a palavra que significa 'animal de estimação' e começa com 'c'?",
+                answer: "cachorro",
+                type: "word",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Sou grande, tenho tromba e orelhas grandes. Que animal sou?",
+                answer: "elefante",
+                type: "animal",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Qual é o animal que é conhecido como o rei da selva?",
+                answer: "leão",
+                type: "animal",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Sou a cor do céu em um dia claro. Que cor sou?",
+                answer: "azul",
+                type: "color",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Qual é a cor do sol?",
+                answer: "amarelo",
+                type: "color",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Qual é a cor da grama?",
+                answer: "verde",
+                type: "color",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Sou redondo e não tenho ângulos. Que forma sou?",
+                answer: "círculo",
+                type: "shape",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Sou uma forma com quatro lados iguais. Que forma sou?",
+                answer: "quadrado",
+                type: "shape",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Sou uma forma que parece um triângulo. Que forma sou?",
+                answer: "triângulo",
+                type: "shape",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Qual é a capital do Brasil?",
+                answer: "Brasília",
+                type: "capital",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Qual é a capital da França?",
+                answer: "Paris",
+                type: "capital",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Qual é a capital da Espanha?",
+                answer: "Madri",
+                type: "capital",
+                attempts: 0,
+                errors: 0
+            },
+            {
+                question: "Qual é a capital da Itália?",
+                answer: "Roma",
+                type: "capital",
+                attempts: 0,
+                errors: 0
+            }
+        ];
+
+        const correctAnswers = {
+            "círculo": "A palavra círculo possui acento agudo no 'i'.",
+            "circulo": "A forma correta é 'círculo'.",
+            "cachorro": "A palavra cachorro está correta.",
+            "elefante": "A palavra elefante está correta.",
+            "leão": "A palavra leão possui acento circunflexo no 'a'.",
+            "leao": "A palavra leão possui acento circunflexo no 'a'.",
+            "azul": "A palavra azul está correta.",
+            "amarelo": "A palavra amarelo está correta.",
+            "verde": "A palavra verde está correta.",
+            "brasília": "A palavra Brasília deve começar com letra maiúscula.",
+            "brasilia": "A palavra Brasília deve conter acento agudo no 'i'.",
+            "paris": "A palavra Paris deve começar com letra maiúscula.",
+            "madri": "A palavra Madri deve começar com letra maiúscula.",
+            "roma": "A palavra Roma deve começar com letra maiúscula.",
+            "triângulo": "A palavra triângulo possui acento circunflexo no 'a'.",
+            "triangulo": "A palavra triângulo possui acento circunflexo no 'a'."
+        };
+
+        let currentStage = 0;
+
+        function showStage() {
+            if (currentStage < stages.length) {
+                document.getElementById('question').innerText = stages[currentStage].question;
+                document.getElementById('answer').value = '';
+                document.getElementById('message').innerText = '';
+                document.getElementById('resetButton').style.display = 'none';
+                stages[currentStage].attempts = 0; // Resetar tentativas para a nova fase
+            } else {
+                showFinalMessage();
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answer').value.trim().toLowerCase();
+            const currentAnswer = stages[currentStage].answer.toString().toLowerCase();
+            stages[currentStage].attempts++;
+
+            if (stages[currentStage].type === "number") {
+                const userNumber = Number(userAnswer);
+                if (userNumber === stages[currentStage].answer) {
+                    document.getElementById('message').innerText = `Parabéns! Você acertou em ${stages[currentStage].attempts} tentativas!`;
+                    currentStage++;
+                    setTimeout(showStage, 2000);
+                } else if (userNumber < stages[currentStage].answer) {
+                    document.getElementById('message').innerText = 'Muito baixo! Tente novamente.';
+                    stages[currentStage].errors++;
+                } else {
+                    document.getElementById('message').innerText = 'Muito alto! Tente novamente.';
+                    stages[currentStage].errors++;
+                }
+            } else if (userAnswer === currentAnswer) {
+                document.getElementById('message').innerText = `Parabéns! Você acertou em ${stages[currentStage].attempts} tentativas!`;
+                currentStage++;
+                setTimeout(showStage, 2000);
+            } else {
+                document.getElementById('message').innerText = 'Tente novamente!';
+                stages[currentStage].errors++;
+
+                // Fornecer feedback específico para cada pergunta
+                if (correctAnswers[userAnswer]) {
+                    document.getElementById('message').innerText += ` ${correctAnswers[userAnswer]}`;
+                }
+            }
+
+            document.getElementById('answer').value = '';
+        }
+
+        function showFinalMessage() {
+            let totalErrors = {
+                shapes: 0,
+                animals: 0,
+                colors: 0,
+                capitals: 0,
+                numbers: 0
+            };
+
+            for (let stage of stages) {
+                if (stage.errors > 0) {
+                    if (stage.type === "shape") totalErrors.shapes += stage.errors;
+                    if (stage.type === "animal") totalErrors.animals += stage.errors;
+                    if (stage.type === "color") totalErrors.colors += stage.errors;
+                    if (stage.type === "capital") totalErrors.capitals += stage.errors;
+                    if (stage.type === "number") totalErrors.numbers += stage.errors;
+                }
+            }
+
+            let finalMessage = "Parabéns! Você completou todos os desafios!<br>";
+            if (totalErrors.numbers > 0) finalMessage += `${totalErrors.numbers} erros na fase de números.<br>`;
+            if (totalErrors.animals > 0) finalMessage += `${totalErrors.animals} erros na fase de animais.<br>`;
+            if (totalErrors.colors > 0) finalMessage += `${totalErrors.colors} erros na fase de cores.<br>`;
+            if (totalErrors.shapes > 0) finalMessage += `${totalErrors.shapes} erros na fase de formas.<br>`;
+            if (totalErrors.capitals > 0) finalMessage += `${totalErrors.capitals} erros na fase de capitais.<br>`;
+
+            document.getElementById('game').innerHTML = `<h2>${finalMessage}</h2>`;
+        }
+
+        document.getElementById('answer').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        function resetGame() {
+            currentStage = 0;
+            stages.forEach(stage => {
+                stage.errors = 0; // Resetar erros para o novo jogo
+            });
+            showStage();
+        }
+
+        // Iniciar o jogo ao carregar a página
+        resetGame();
+    </script>
+</body>
+</html>
