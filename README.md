@@ -1,2 +1,2 @@
 # jogos
-jogos tcc 2024
+https://github.com.io/prateslr/jogos/memoria/index.html
