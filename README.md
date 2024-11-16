@@ -1,2 +1,2 @@
 # jogos
-https://github.com.io/prateslr/jogos/memoria/index.html
+https://prateslr.com.io/jogos/memoria/index.html
