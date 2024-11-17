@@ -1,249 +1,76 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Alfabeto Mágico</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
-            text-align: center;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #007bff;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .fase {
-            margin: 20px 0;
-            padding: 20px;
-            border: 2px solid #007bff;
-            border-radius: 10px;
-            background-color: #e9f5ff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            width: 80%;
-            border: 2px solid #007bff;
-            border-radius: 5px;
-            font-size: 18px;
-            margin-top: 10px;
-        }
-
-        input[type="text"]:focus {
-            border-color: #0056b3;
-            outline: none;
-        }
-
-        #resultado, #resultadoFinal {
-            margin-top: 20px;
-            font-size: 20px;
-            color: #28a745; /* Verde para resultados positivos */
-        }
-
-        .alert {
-            color: #dc3545; /* Vermelho para alertas */
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Educativo</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
-    <h1>Bem-vindo ao Alfabeto Mágico!</h1>
-    <button id="iniciar">Iniciar Jogo</button>
-    <div class="fase" id="fase1" style="display: none;">
-        <h2>Fase 1: Letras do Alfabeto</h2>
-        <div id="perguntaFase1"></div>
-        <input type="text" id="respostaFase1" placeholder="Digite sua resposta">
-        <button id="submitFase1">Enviar Resposta</button>
-        <div id="resultadoFase1"></div>
+    <!-- Modal de Escolha de Modo -->
+    <div id="mode-selection-modal" class="modal">
+        <div class="modal-content">
+            <h2>Escolha um modo</h2>
+            <button id="animais-btn" onclick="startAnimalMode()">Animais</button>
+            <button id="alfabeto-btn" onclick="startAlphabetMode()">Alfabeto</button>
+        </div>
     </div>
-    <div class="fase" id="fase2" style="display: none;">
-        <h2>Fase 2: Imagens (Exemplo)</h2>
-        <div id="perguntaFase2"></div>
-        <input type="text" id="respostaFase2" placeholder="Digite sua resposta">
-        <button id="submitFase2">Enviar Resposta</button>
-        <div id="resultadoFase2"></div>
+
+    <!-- Modal de Finalização -->
+    <div id="end-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Parabéns!</h2>
+            <p id="end-modal-message"></p>
+            <button id="end-modal-button">Voltar ao Menu</button>
+        </div>
+    </div>  
+
+    <!-- Modal de Tempo Esgotado -->
+    <div id="time-out-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h1>Tempo Esgotado!</h1>
+            <p>Você não conseguiu responder a tempo.</p>
+            <button id="retry-button">Tente Novamente</button>
+        </div>
+    </div>       
+
+    <!-- Container de Animais -->
+    <div id="animal-container" style="display: none; position: relative;">
+        <button id="exit-animais-button"><i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i> Sair</button>
+        <h2>Qual é o nome deste animal?</h2>
+        <div id="animal-image-container">
+            <img id="animal-image" src="" alt="Animal">
+        </div>
+        <input type="text" id="animal-input" placeholder="Digite o nome do animal" autocomplete="off">
+        <button id="submit-animal">Enviar</button>
+        <button id="hint-button">Dica</button>
+        <p id="animal-feedback"></p>
+        <p id="timer">Tempo restante: 15s</p>
     </div>
-    <div class="fase" id="fase3" style="display: none;">
-        <h2>Fase 3: Frases Curiosas</h2>
-        <div id="perguntaFase3"></div>
-        <input type="text" id="respostaFase3" placeholder="Digite sua frase">
-        <button id="submitFase3">Enviar Resposta</button>
-        <div id="resultadoFase3"></div>
+
+    <!-- Modal de Dica -->
+    <div id="hint-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Dica</h2>
+            <p id="hint-text"></p>
+            <button id="close-hint-button">Fechar</button>
+        </div>
+    </div>  
+
+    <!-- Container de Alfabeto -->
+    <div id="alphabet-container" style="display: none; position: relative;">
+        <button id="exit-alphabet-button"><i class="fa-solid fa-arrow-left" style="color: #ffffff;"></i> Sair</button>
+        <h2>Que letra é essa?</h2>
+        <div id="letter-container">
+            <h3 id="letter-display"></h3>
+        </div>
+        <div id="options-container" class="flex">
+        </div>
+        <p id="alphabet-feedback"></p>
+        <p id="alphabet-timer">Tempo restante: 15s</p>
     </div>
-    <div id="resultadoFinal"></div>
 
-    <script>
-        const alfabetoPalavras = {
-            'A': 'Abacate',
-            'B': 'Bola',
-            'C': 'Cachorro',
-            'D': 'Dado',
-            'E': 'Elefante',
-            'F': 'Foca',
-            'G': 'Gato',
-            'H': 'Hipopótamo',
-            'I': 'Igreja',
-            'J': 'Jacaré',
-            'K': 'Kiwi',
-            'L': 'Leão',
-            'M': 'Macaco',
-            'N': 'Navio',
-            'O': 'Ovelha',
-            'P': 'Pato',
-            'Q': 'Queijo',
-            'R': 'Rato',
-            'S': 'Sapo',
-            'T': 'Tigre',
-            'U': 'Urso',
-            'V': 'Vaca',
-            'W': 'Wolverine',
-            'X': 'Xaxim',
-            'Y': 'Yeti',
-            'Z': 'Zebra'
-        };
-
-        let acertos = 0;
-        let faseAtual = 1;
-
-        function palavraValida(resposta, letra) {
-            return resposta.trim().toLowerCase().startsWith(letra.toLowerCase());
-        }
-
-        function mostrarFase(fase) {
-            document.getElementById('fase1').style.display = 'none';
-            document.getElementById('fase2').style.display = 'none';
-            document.getElementById('fase3').style.display = 'none';
-            document.getElementById(`fase${fase}`).style.display = 'block';
-        }
-
-        function iniciarFase1() {
-            mostrarFase(1);
-            const letras = Object.keys(alfabetoPalavras).sort(() => Math.random() - 0.5);
-            let index = 0;
-            document.getElementById('perguntaFase1').innerText = `Qual palavra que começa com a letra '${letras[index]}'?`;
-
-            document.getElementById('submitFase1').onclick = function() {
-                const resposta = document.getElementById('respostaFase1').value;
-                if (resposta && palavraValida(resposta, letras[index])) {
-                    alert("Muito bem!");
-                    acertos++;
-                } else {
-                    alert(`A palavra deve começar com a letra '${letras[index]}'. Tente novamente!`);
-                }
-                index++;
-                if (index < letras.length) {
-                    document.getElementById('perguntaFase1').innerText = `Qual palavra que começa com a letra '${letras[index]}'?`;
-                    document.getElementById('respostaFase1').value = '';
-                } else {
-                    alert(`Você acertou ${acertos} de ${letras.length}.`);
-                    iniciarFase2();
-                }
-            };
-
-            document.getElementById('respostaFase1').addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
-                    document.getElementById('submitFase1').click();
-                }
-            });
-        }
-
-        function iniciarFase2() {
-            mostrarFase(2);
-            let index = 0;
-            const perguntas = Object.entries(alfabetoPalavras);
-            document.getElementById('perguntaFase2').innerText = `Qual letra começa a palavra '${perguntas[index][1]}'?`;
-
-            document.getElementById('submitFase2').onclick = function() {
-                const resposta = document.getElementById('respostaFase2').value.toUpperCase();
-                if (resposta === perguntas[index][0]) {
-                    alert("Muito bem!");
-                    acertos++;
-                } else {
-                    alert(`A palavra '${perguntas[index][1]}' começa com a letra '${perguntas[index][0]}'.`);
-                }
-                index++;
-                if (index < perguntas.length) {
-                    document.getElementById('perguntaFase2').innerText = `Qual letra começa a palavra '${perguntas[index][1]}'?`;
-                    document.getElementById('respostaFase2').value = '';
-                } else {
-                    alert(`Você acertou ${acertos} de ${perguntas.length}.`);
-                    iniciarFase3();
-                }
-            };
-
-
-            document.getElementById('respostaFase2').addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
-                    document.getElementById('submitFase2').click();
-                }
-            });
-        }
-
-        function iniciarFase3() {
-            mostrarFase(3);
-            const letras = Object.keys(alfabetoPalavras).sort(() => Math.random() - 0.5);
-            let index = 0;
-            document.getElementById('perguntaFase3').innerText = `Crie uma frase usando palavras que começam com a letra '${letras[index]}':`;
-
-            document.getElementById('submitFase3').onclick = function() {
-                const frase = document.getElementById('respostaFase3').value;
-                const palavras = frase.split(' ');
-
-                if (palavras.some(p => p.trim().toLowerCase().startsWith(letras[index].toLowerCase()))) {
-                    alert("Ótima frase! Você usou palavras que começam com a letra!");
-                    acertos++;
-                } else {
-                    alert(`Tente novamente! Sua frase deve conter palavras que começam com '${letras[index]}'.`);
-                }
-                index++;
-                if (index < letras.length) {
-                    document.getElementById('perguntaFase3').innerText = `Crie uma frase usando palavras que começam com a letra '${letras[index]}':`;
-                    document.getElementById('respostaFase3').value = '';
-                } else {
-                    alert(`Você acertou ${acertos} de ${letras.length}.`);
-                    finalizarJogo();
-                }
-            };
-
-            document.getElementById('respostaFase3').addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
-                    document.getElementById('submitFase3').click();
-                }
-            });
-        }
-
-        function finalizarJogo() {
-            alert(`Parabéns! Você completou todas as fases! Total de acertos: ${acertos}.`);
-            const jogarNovamente = confirm("Você quer jogar novamente?");
-            if (jogarNovamente) {
-                acertos = 0;
-                faseAtual = 1;
-                iniciarFase1();
-            }
-        }
-
-        document.getElementById('iniciar').onclick = iniciarFase1;
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
-
-
