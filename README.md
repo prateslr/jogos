@@ -1,3 +1,6 @@
 # jogos
-https://prateslr.github.io/jogos/memoria/index.html
-https://prateslr.github.io/jogos/alfabeto/index.html
+Jogo da Memória:<br>
+- https://prateslr.github.io/jogos/memoria/index.html
+
+Jogo do ALfabeto:<br>
+- https://prateslr.github.io/jogos/alfabeto/index.html
