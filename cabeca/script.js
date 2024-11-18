@@ -2,12 +2,13 @@ const puzzleBoard = document.getElementById("puzzle-board");
 const puzzlePieces = document.getElementById("puzzle-pieces");
 const message = document.getElementById("message");
 let currentLevel = 2;
+let score = 0;
 
 const images = [
     "img/fase1.jpg",
     "img/fase2.jpg",
     "img/fase3.png",
-    "img/fase4.webp",
+    "img/fase4.webp"
 ];
 
 function createPuzzle(level) {
@@ -117,17 +118,35 @@ function checkWinCondition() {
     });
 
     if (correct === dropzones.length) {
-        if (currentLevel < images.length + 2) {
+        if (currentLevel < 5) {
             currentLevel++;
-            message.textContent = `Parabéns! Avançando para o nível ${currentLevel}x${currentLevel}!`;
+            score++;
+            message.textContent = `Parabéns! Avançando para o nível ${currentLevel}x${currentLevel}! Pontuação: ${score}`;
             setTimeout(() => {
                 message.textContent = "";
                 createPuzzle(currentLevel);
             }, 2000);
         } else {
-            message.textContent = "Parabéns! Você completou todos os níveis!";
+            message.textContent = `Parabéns! Você completou todos os níveis! Pontuação final: ${score}`;
         }
     }
+}
+
+function saveScore() {
+    fetch('/save-score', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ score: score }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Pontuação salva com sucesso:', data);
+    })
+    .catch((error) => {
+        console.error('Erro ao salvar a pontuação:', error);
+    });
 }
 
 createPuzzle(currentLevel);
