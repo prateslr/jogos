@@ -16,6 +16,31 @@ const stages = [
  { question: "Se eu estou dentro de casa e quero sair, por onde eu saio?", answer: "pela porta", type: "logic" }
 ];
 
+let playerScore = 0;
+
+function sendScoreToDatabase() {
+    const payload = {
+      score: playerScore,
+      playerId: "12345"
+    };
+  
+    fetch("https://api.example.com/scores", {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    })
+        .then((response) => {
+        if (response.ok) {
+            console.log("Pontuação enviada com sucesso!");
+        } else {
+            console.error("Erro ao enviar pontuação.");
+        }
+        })
+        .catch((error) => console.error("Erro de rede:", error));
+}
+
 let currentStage = 0;
 
 function showStage() {
