@@ -6,4 +6,4 @@ Jogo do ALfabeto:<br>
 - https://prateslr.github.io/jogos/alfabeto/alfa.html
 
 Jogo do ALfabeto:<br>
-- https://prateslr.github.io/jogos/logica/logic.html
+- https://prateslr.github.io/jogos/lógica/logic.html
