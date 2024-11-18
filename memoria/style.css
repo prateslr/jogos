@@ -18,6 +18,16 @@ body {
   margin: 0;
 }
 
+#score {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  margin: 27px 90px 0 0;
+  color: #007bff;
+  font-weight: 600;
+}
+
 #game {
   text-align: center;
   width: 90%;
@@ -30,6 +40,7 @@ body {
 
   display: grid;
   place-items: center;
+  position: relative;
 }
 
 #gameTitle {

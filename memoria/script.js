@@ -184,6 +184,10 @@ function generateCoins(cardElement) {
 
 function nextPhase() {
     currentPhase++;
+    playerScore++;
+    updateScoreDisplay();
+    console.log(`Pontuação atual: ${playerScore}`);
+
     if (currentPhase > 3) {
         showGameCompletedModal();
     } else {
@@ -191,11 +195,17 @@ function nextPhase() {
     }
 }
 
+function updateScoreDisplay() {
+    const scoreDisplay = document.getElementById('score-value');
+    scoreDisplay.innerText = playerScore;
+}
+
 function showGameCompletedModal() {
     const gameCompletedModal = document.getElementById('game-completed-modal');
     gameCompletedModal.style.display = 'flex';
 
     startConfetti();
+    sendScoreToDatabase();
 
     const restartButton = document.getElementById('restart-button');
     restartButton.addEventListener('click', () => {
