@@ -3,6 +3,31 @@ let currentQuestion = 0;
 let totalPoints = 0;
 let phases = [];
 
+let playerScore = 0;
+
+function sendScoreToDatabase() {
+    const payload = {
+      score: playerScore,
+      playerId: "12345"
+    };
+  
+    fetch("https://api.example.com/scores", {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    })
+        .then((response) => {
+        if (response.ok) {
+            console.log("Pontuação enviada com sucesso!");
+        } else {
+            console.error("Erro ao enviar pontuação.");
+        }
+        })
+        .catch((error) => console.error("Erro de rede:", error));
+}
+
 function generatePhases() {
     // Fase de Adição
     phases.push({
@@ -20,7 +45,7 @@ function generatePhases() {
         questions: Array.from({ length: 5 }, () => {
             let a = Math.floor(Math.random() * 10) + 1;
             let b = Math.floor(Math.random() * 10) + 1;
-            if (a < b) [a, b] = [b, a]; // Garante que o resultado não seja negativo
+            if (a < b) [a, b] = [b, a];
             return { question: `${a} - ${b} = ?`, answer: a - b };
         }),
     });
@@ -41,7 +66,7 @@ function generatePhases() {
         questions: Array.from({ length: 5 }, () => {
             const a = Math.floor(Math.random() * 10) + 1;
             const b = Math.floor(Math.random() * 10) + 1;
-            return { question: `${a * b} ÷ ${b} = ?`, answer: a }; // Garante divisão exata
+            return { question: `${a * b} ÷ ${b} = ?`, answer: a };
         }),
     });
 }
