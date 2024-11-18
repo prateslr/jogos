@@ -2,11 +2,11 @@
 Jogo da Memória:<br>
 - https://prateslr.github.io/jogos/memoria/index.html
 
-Jogo do ALfabeto:<br>
+Jogo do Alfabeto:<br>
 - https://prateslr.github.io/jogos/alfabeto/alfa.html
 
-Jogo do ALfabeto:<br>
+Jogo de Lógica:<br>
 - https://prateslr.github.io/jogos/lógica/logic.html
 
-Jogo do ALfabeto:<br>
+Jogo de Matemática:<br>
 - https://prateslr.github.io/jogos/conts/index.html
