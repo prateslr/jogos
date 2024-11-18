@@ -1,21 +1,19 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo de Quebra-Cabeça</title>
+    <title>Quebra-Cabeça Progressivo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game">
-        <h1>Jogo de Quebra-Cabeça</h1>
+    <h1>Quebra-Cabeça Progressivo</h1>
+    <p id="instructions">Arraste as peças para os locais corretos!</p>
+    <div id="game-container">
         <div id="puzzle-board"></div>
-        <button id="reset">Reiniciar Jogo</button>
-        <div id="level-select">
-            <button class="level-btn" data-level="1">Fase 1</button>
-        </div>
+        <div id="puzzle-pieces"></div>
     </div>
-    <div id="particles"></div>
+    <div id="message"></div>
     <script src="script.js"></script>
 </body>
 </html>

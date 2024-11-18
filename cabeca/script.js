@@ -1,135 +1,133 @@
-const board = document.getElementById('puzzle-board');
-const resetButton = document.getElementById('reset');
+const puzzleBoard = document.getElementById("puzzle-board");
+const puzzlePieces = document.getElementById("puzzle-pieces");
+const message = document.getElementById("message");
+let currentLevel = 2;
 
 const images = [
-    'https://designcomcafe.com.br/wp-content/uploads/2023/10/como-criar-prompts-para-geracao-de-imagens-com-ia-1024x538.jpg',
+    "img/fase1.jpg",
+    "img/fase2.jpg",
+    "img/fase3.png",
+    "img/fase4.webp",
 ];
 
-let pieces = [];
-let currentLevel = 0;
-
-// Carrega a fase selecionada
-function loadLevel(level) {
-    currentLevel = level - 1;
-    pieces = [];
-    board.innerHTML = '';
-    createPuzzle(level);
-}
-
-// Cria o quebra-cabeça
 function createPuzzle(level) {
-    const imgSrc = images[currentLevel];
-    const gridSize = 3;
+    puzzleBoard.innerHTML = "";
+    puzzlePieces.innerHTML = "";
 
-    for (let row = 0; row < gridSize; row++) {
-        for (let col = 0; col < gridSize; col++) {
-            const piece = document.createElement('div');
-            piece.classList.add('piece');
-            piece.style.backgroundImage = `url(${imgSrc})`;
-            piece.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
-            piece.setAttribute('draggable', true);
-            piece.setAttribute('data-position', `${row}-${col}`);
-            piece.addEventListener('dragstart', dragStart);
-            piece.addEventListener('dragover', dragOver);
-            piece.addEventListener('drop', drop);
-            pieces.push(piece);
-        }
+    puzzleBoard.style.gridTemplateColumns = `repeat(${level}, 1fr)`;
+    puzzleBoard.style.gridTemplateRows = `repeat(${level}, 1fr)`;
+    puzzlePieces.style.gridTemplateColumns = `repeat(${level}, 1fr)`;
+    puzzlePieces.style.gridTemplateRows = `repeat(${level}, 1fr)`;
+
+    const totalPieces = level * level;
+    const image = images[currentLevel - 2]
+
+    for (let i = 1; i <= totalPieces; i++) {
+        const dropzone = document.createElement("div");
+        dropzone.classList.add("dropzone");
+        dropzone.dataset.piece = i;
+        dropzone.style.width = `${300 / level}px`;
+        dropzone.style.height = `${300 / level}px`;
+        puzzleBoard.appendChild(dropzone);
     }
 
-    pieces = shuffleArray(pieces);
-    pieces.forEach(piece => board.appendChild(piece));
-}
+    const pieces = [];
+    for (let i = 1; i <= totalPieces; i++) {
+        const piece = document.createElement("div");
+        piece.classList.add("puzzle-piece");
+        piece.draggable = true;
+        piece.dataset.piece = i;
 
-// Embaralha as peças
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        piece.style.backgroundImage = `url(${image})`;
+        piece.style.backgroundSize = `${level * 100}% ${level * 100}%`;
+
+        const x = ((i - 1) % level) * (100 / (level - 1));
+        const y = Math.floor((i - 1) / level) * (100 / (level - 1));
+        piece.style.backgroundPosition = `${x}% ${y}%`;
+
+        piece.style.width = `${300 / level}px`;
+        piece.style.height = `${300 / level}px`;
+
+        pieces.push(piece);
     }
-    return array;
+
+    pieces.sort(() => Math.random() - 0.5);
+    pieces.forEach(piece => puzzlePieces.appendChild(piece));
+
+    addDragAndDrop();
 }
 
-// Inicia o arrasto
-function dragStart(e) {
-    e.dataTransfer.setData('text/plain', e.target.dataset.position);
+function addDragAndDrop() {
+    const pieces = document.querySelectorAll(".puzzle-piece");
+    const dropzones = document.querySelectorAll(".dropzone");
+
+    pieces.forEach((piece) => {
+        piece.addEventListener("dragstart", (e) => {
+            if (!piece.classList.contains("locked")) {
+                e.dataTransfer.setData("text", e.target.dataset.piece);
+            }
+        });
+    });
+
+    dropzones.forEach((zone) => {
+        zone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+        });
+
+        zone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            const pieceId = e.dataTransfer.getData("text");
+            const piece = document.querySelector(`.puzzle-piece[data-piece="${pieceId}"]`);
+
+            if (zone.dataset.piece === pieceId) {
+                zone.appendChild(piece);
+                zone.classList.add("correct");
+                piece.classList.add("locked");
+                piece.draggable = false;
+            } else {
+                if (!zone.classList.contains("correct")) {
+                    if (zone.hasChildNodes()) {
+                        const existingPiece = zone.firstChild;
+                        const parent = piece.parentNode;
+
+                        zone.appendChild(piece);
+                        parent.appendChild(existingPiece);
+                    } else {
+                        zone.appendChild(piece);
+                    }
+                }
+            }
+
+            checkWinCondition();
+        });
+    });
 }
 
-// Permite o arrasto sobre a peça
-function dragOver(e) {
-    e.preventDefault();
-}
+function checkWinCondition() {
+    const dropzones = document.querySelectorAll(".dropzone");
+    let correct = 0;
 
-// Realiza o drop da peça
-function drop(e) {
-    e.preventDefault();
-    const sourcePosition = e.dataTransfer.getData('text/plain');
-    const targetPosition = e.target.dataset.position;
-
-    if (sourcePosition !== targetPosition) {
-        const sourcePiece = pieces.find(piece => piece.dataset.position === sourcePosition);
-        const targetPiece = pieces.find(piece => piece.dataset.position === targetPosition);
-
-        // Troca as posições
-        const tempBgPos = sourcePiece.style.backgroundPosition;
-        sourcePiece.style.backgroundPosition = targetPiece.style.backgroundPosition;
-        targetPiece.style.backgroundPosition = tempBgPos;
-
-        checkIfSolved();
-    }
-}
-
-// Verifica se o quebra-cabeça foi resolvido
-function checkIfSolved() {
-    let allSolved = true;
-
-    pieces.forEach(piece => {
-        const [row, col] = piece.dataset.position.split('-').map(Number);
-        const correctPosition = `-${col * 100}px -${row * 100}px`;
-
-        if (piece.style.backgroundPosition !== correctPosition) {
-            allSolved = false;
+    dropzones.forEach((zone) => {
+        if (zone.hasChildNodes()) {
+            const childId = zone.firstChild.dataset.piece;
+            if (zone.dataset.piece === childId) {
+                correct++;
+            }
         }
     });
 
-    if (allSolved) {
-        setTimeout(() => {
-            alert('Parabéns! Você completou o quebra-cabeça!');
-            createParticles();
-            loadLevel(currentLevel + 1);
-        }, 500);
+    if (correct === dropzones.length) {
+        if (currentLevel < images.length + 2) {
+            currentLevel++;
+            message.textContent = `Parabéns! Avançando para o nível ${currentLevel}x${currentLevel}!`;
+            setTimeout(() => {
+                message.textContent = "";
+                createPuzzle(currentLevel);
+            }, 2000);
+        } else {
+            message.textContent = "Parabéns! Você completou todos os níveis!";
+        }
     }
 }
 
-// Função para criar partículas
-function createParticles() {
-    for (let i = 0; i < 50; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.position = 'absolute';
-        particle.style.width = '5px';
-        particle.style.height = '5px';
-        particle.style.backgroundColor = 'gold';
-        particle.style.borderRadius = '50%';
-        particle.style.pointerEvents = 'none';
-        particle.style.left = `${Math.random() * window.innerWidth}px`;
-        particle.style.top = `${Math.random() * window.innerHeight}px`;
-        document.getElementById('particles').appendChild(particle);
-
-        // Animação da partícula
-        setTimeout(() => {
-            particle.style.transform = `translateY(-100px)`;
-            particle.style.opacity = '0';
-            particle.addEventListener('transitionend', () => {
-                particle.remove();
-            });
-        }, 10);
-    }
-}
-
-// Reinicia o jogo
-resetButton.addEventListener('click', () => {
-    loadLevel(currentLevel + 1);
-});
-
-// Iniciar o jogo na fase 1
-loadLevel(1);
+createPuzzle(currentLevel);
