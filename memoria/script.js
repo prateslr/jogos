@@ -10,6 +10,31 @@ let timerInterval;
 let seconds = 0;
 let currentPhase = 1;
 
+let playerScore = 0;
+
+function sendScoreToDatabase() {
+    const payload = {
+      score: playerScore,
+      playerId: "12345"
+    };
+  
+    fetch("https://api.example.com/scores", {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    })
+        .then((response) => {
+        if (response.ok) {
+            console.log("Pontuação enviada com sucesso!");
+        } else {
+            console.error("Erro ao enviar pontuação.");
+        }
+        })
+        .catch((error) => console.error("Erro de rede:", error));
+}
+
 const cardValues = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
     'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
