@@ -4,3 +4,6 @@ Jogo da Memória:<br>
 
 Jogo do ALfabeto:<br>
 - https://prateslr.github.io/jogos/alfabeto/alfa.html
+
+Jogo do ALfabeto:<br>
+- https://prateslr.github.io/jogos/logica/logic.html
