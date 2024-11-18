@@ -82,11 +82,10 @@ function showTimeOutModal(mode) {
 
   retryButton.onclick = () => {
     timeOutModal.style.display = "none";
-    if (mode === 'animal') {
+    if (animalContainer.style.display === "block") {
       animalTimer = 15;
       startAnimalTimer();
-      showAnimal();
-    } else {
+    } else if (alphabetContainer.style.display === "block") {
       alphabetTimer = 15;
       startAlphabetTimer();
       showLetter();
@@ -142,9 +141,10 @@ submitAnimalButton.onclick = () => {
         sendScoreToDatabase();
         showEndModal("Você completou o modo Animais! Pontuação: " + playerScore);
       } else {
+        hintButton.style.display = "none";
         showAnimal();
       }
-    };    
+    };
 
     hintUsed = false;
     animalFeedback.textContent = "";
@@ -197,7 +197,7 @@ function startAnimalTimer() {
     if (animalTimer <= 0) {
       clearInterval(animalTimerInterval);
       showTimeOutModal('animal');
-      showHintButton();
+      hintButton.style.display = "block";
     }
   }, 1000);
 }
@@ -312,3 +312,18 @@ endModalButton.onclick = () => {
   animalContainer.style.display = "none";
   alphabetContainer.style.display = "none";
 };
+
+function showAnimal() {
+  const currentAnimal = animals[currentAnimalIndex];
+  animalImage.src = currentAnimal.image;
+  animalInput.value = "";
+  animalFeedback.textContent = "";
+
+  hintButton.style.display = "none";
+
+  hintModal.style.display = "none";
+
+  animalTimer = 15;
+  animalTimerDisplay.textContent = `Tempo restante: ${animalTimer}s`;
+  startAnimalTimer();
+}
