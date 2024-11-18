@@ -2,7 +2,31 @@ const puzzleBoard = document.getElementById("puzzle-board");
 const puzzlePieces = document.getElementById("puzzle-pieces");
 const message = document.getElementById("message");
 let currentLevel = 2;
-let score = 0;
+
+let playerScore = 0;
+
+function sendScoreToDatabase() {
+  const payload = {
+    score: playerScore,
+    playerId: "12345"
+  };
+
+  fetch("https://api.example.com/scores", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((response) => {
+      if (response.ok) {
+        console.log("Pontuação enviada com sucesso!");
+      } else {
+        console.error("Erro ao enviar pontuação.");
+      }
+    })
+    .catch((error) => console.error("Erro de rede:", error));
+}
 
 const images = [
     "img/fase1.jpg",
