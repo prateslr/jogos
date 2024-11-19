@@ -1,29 +1,35 @@
 let currentPhase = 0;
 let currentQuestion = 0;
-let totalPoints = 0;
+let playerScore = 0;
+let correctStreak = 0;
 let phases = [];
 
-let playerScore = 0;
+function updateScoreDisplay() {
+    playerScore++;
+    document.getElementById('score-value').textContent = playerScore;
+
+    localStorage.setItem("playerScore", playerScore);
+}
 
 function sendScoreToDatabase() {
     const payload = {
-      score: playerScore,
-      playerId: "12345"
+        score: playerScore,
+        playerId: "12345" // Id jogador / usuário
     };
-  
-    fetch("https://api.example.com/scores", {
+
+    fetch("https://api.example.com/scores", { // Nossa URL
         method: "POST",
         headers: {
-        "Content-Type": "application/json",
+            "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
     })
         .then((response) => {
-        if (response.ok) {
-            console.log("Pontuação enviada com sucesso!");
-        } else {
-            console.error("Erro ao enviar pontuação.");
-        }
+            if (response.ok) {
+                console.log("Pontuação enviada com sucesso!");
+            } else {
+                console.error("Erro ao enviar pontuação.");
+            }
         })
         .catch((error) => console.error("Erro de rede:", error));
 }
@@ -83,10 +89,16 @@ function checkAnswer() {
     const question = phase.questions[currentQuestion];
 
     if (userAnswer === question.answer) {
-        totalPoints++;
+        correctStreak++;
         document.getElementById("message").textContent = "Correto!";
     } else {
+        correctStreak = 0;
         document.getElementById("message").textContent = `Incorreto! A resposta certa é ${question.answer}.`;
+    }
+
+    if (correctStreak === 3) {
+        updateScoreDisplay();
+        correctStreak = 0;
     }
 
     currentQuestion++;
@@ -102,6 +114,7 @@ function checkAnswer() {
             document.getElementById("nextPhaseButton").style.display = "inline-block";
         } else {
             document.getElementById("restartButton").style.display = "inline-block";
+            sendScoreToDatabase();
         }
     }
 }
@@ -112,6 +125,7 @@ document.getElementById("nextPhaseButton").addEventListener("click", () => {
     currentQuestion = 0;
     showQuestion();
 });
+
 document.getElementById("restartButton").addEventListener("click", () => {
     location.reload();
 });
@@ -122,6 +136,6 @@ document.getElementById('answer').addEventListener('keypress', (event) => {
  }
 });
 
-// Inicializa o jogo
 generatePhases();
 showQuestion();
+updateScoreDisplay();
