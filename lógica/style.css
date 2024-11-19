@@ -34,6 +34,11 @@ body {
  text-align: center;
 }
 
+#score {
+ color: #005bc3;
+ font-weight: 600;
+}
+
 /* Estilo do jogo */
 #game h1 {
  font-size: 1.8em;
@@ -49,7 +54,7 @@ body {
 }
 
 #game input {
- width: 80%;
+ width: 100%;
  padding: 10px;
  margin: 10px 0;
  border: 2px solid #4a90e2;

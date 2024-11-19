@@ -17,83 +17,113 @@ const stages = [
 ];
 
 let playerScore = 0;
+let correctAnswers = 0;
 
 function sendScoreToDatabase() {
     const payload = {
-      score: playerScore,
-      playerId: "12345"
+        score: playerScore,
+        playerId: "12345",
     };
-  
+
     fetch("https://api.example.com/scores", {
         method: "POST",
         headers: {
-        "Content-Type": "application/json",
+            "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
     })
         .then((response) => {
-        if (response.ok) {
-            console.log("Pontuação enviada com sucesso!");
-        } else {
-            console.error("Erro ao enviar pontuação.");
-        }
+            if (response.ok) {
+                console.log("Pontuação enviada com sucesso!");
+            } else {
+                console.error("Erro ao enviar pontuação.");
+            }
         })
         .catch((error) => console.error("Erro de rede:", error));
 }
 
 let currentStage = 0;
 
-function showStage() {
- const questionDiv = document.getElementById('question');
- const answerInput = document.getElementById('answer');
- const messageDiv = document.getElementById('message');
- const resetButton = document.getElementById('resetButton');
+function updateScore() {
+    correctAnswers++;
 
- if (currentStage < stages.length) {
-     questionDiv.textContent = stages[currentStage].question;
-     answerInput.value = '';
-     messageDiv.textContent = '';
-     resetButton.style.display = 'none';
- } else {
-     questionDiv.textContent = "Parabéns! Você concluiu todos os desafios!";
-     answerInput.style.display = 'none';
-     resetButton.style.display = 'block';
- }
+    if (correctAnswers === 3) {
+        playerScore++;
+        correctAnswers = 0;
+
+        document.getElementById('score-value').textContent = playerScore;
+    }
 }
 
+function showStage() {
+    const questionDiv = document.getElementById('question');
+    const answerInput = document.getElementById('answer');
+    const messageDiv = document.getElementById('message');
+    const resetButton = document.getElementById('resetButton');
+
+    messageDiv.textContent = '';
+
+    if (currentStage < stages.length) {
+        questionDiv.textContent = stages[currentStage].question;
+        answerInput.value = '';
+        answerInput.style.display = 'block';
+        resetButton.style.display = 'none';
+    } else {
+        questionDiv.textContent = "Parabéns! Você concluiu todos os desafios!";
+        answerInput.style.display = 'none';
+        resetButton.style.display = 'block';
+    }
+}
+
+function updateScore() {
+    playerScore++;
+    document.getElementById('score-value').textContent = playerScore;
+
+    localStorage.setItem("playerScore", playerScore);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const storedScore = localStorage.getItem("playerScore");
+    if (storedScore) {
+        playerScore = parseInt(storedScore, 10);
+        document.getElementById('score-value').textContent = playerScore;
+    }
+});
+
 function checkAnswer() {
- const userAnswer = document.getElementById('answer').value.trim();
- const currentStageData = stages[currentStage];
- const currentAnswer = currentStageData.answer;
+    const userAnswer = document.getElementById('answer').value.trim();
+    const currentStageData = stages[currentStage];
+    const currentAnswer = currentStageData.answer;
 
- if (currentStageData.type === "number") {
-     const userNumber = Number(userAnswer);
+    if (currentStageData.type === "number") {
+        const userNumber = Number(userAnswer);
 
-     if (userNumber === currentAnswer) {
-         document.getElementById('message').textContent = "Parabéns! Você acertou! Avançando para a próxima fase...";
-         currentStage++;
-         setTimeout(showStage, 2000);
-     } else if (userNumber < currentAnswer) {
-         document.getElementById('message').textContent = "Muito baixo! Tente um número maior.";
-     } else {
-         document.getElementById('message').textContent = "Muito alto! Tente um número menor.";
-     }
- } else {
-     if (userAnswer.toLowerCase() === currentAnswer.toString().toLowerCase()) {
-         document.getElementById('message').textContent = "Resposta correta! Avançando...";
-         currentStage++;
-         setTimeout(showStage, 2000);
-     } else {
-         document.getElementById('message').textContent = "Tente novamente!";
-     }
- }
+        if (userNumber === currentAnswer) {
+            document.getElementById('message').textContent = "Parabéns! Você acertou! Avançando para a próxima fase...";
+            updateScore();
+            currentStage++;
+            setTimeout(showStage, 2000);
+        } else if (userNumber < currentAnswer) {
+            document.getElementById('message').textContent = "Muito baixo! Tente um número maior.";
+        } else {
+            document.getElementById('message').textContent = "Muito alto! Tente um número menor.";
+        }
+    } else {
+        if (userAnswer.toLowerCase() === currentAnswer.toString().toLowerCase()) {
+            document.getElementById('message').textContent = "Parabéns! Você acertou! Avançando...";
+            updateScore();
+            currentStage++;
+            setTimeout(showStage, 2000);
+        } else {
+            document.getElementById('message').textContent = "Tente novamente!";
+        }
+    }
 
- document.getElementById('answer').value = '';
+    document.getElementById('answer').value = '';
 }
 
 document.getElementById('submitButton').addEventListener('click', checkAnswer);
 
-// Adiciona a funcionalidade de envio com a tecla Enter
 document.getElementById('answer').addEventListener('keypress', (event) => {
  if (event.key === 'Enter') {
      checkAnswer();
@@ -101,9 +131,12 @@ document.getElementById('answer').addEventListener('keypress', (event) => {
 });
 
 document.getElementById('resetButton').addEventListener('click', () => {
- currentStage = 0;
- document.getElementById('answer').style.display = 'block';
- showStage();
+    currentStage = 0;
+    playerScore = 0;
+    correctAnswers = 0;
+    document.getElementById('score-value').textContent = playerScore;
+    document.getElementById('answer').style.display = 'block';
+    showStage();
 });
 
 showStage();
