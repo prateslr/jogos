@@ -10,29 +10,17 @@ let timerInterval;
 let seconds = 0;
 let currentPhase = 1;
 
-let playerScore = 0;
+let phaseTimes = [];
 
-function sendScoreToDatabase() {
-    const payload = {
-      score: playerScore,
-      playerId: "12345"
-    };
-  
-    fetch("https://api.example.com/scores", {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-    })
-        .then((response) => {
-        if (response.ok) {
-            console.log("Pontuação enviada com sucesso!");
-        } else {
-            console.error("Erro ao enviar pontuação.");
-        }
-        })
-        .catch((error) => console.error("Erro de rede:", error));
+function startTimer() {
+    clearInterval(timerInterval);
+    seconds = 0;
+    timerDisplay.innerText = seconds;
+
+    timerInterval = setInterval(() => {
+        seconds++;
+        timerDisplay.innerText = seconds;
+    }, 1000);
 }
 
 const cardValues = [
@@ -48,6 +36,7 @@ function getGridDimensions(phase) {
         default: return { rows: 2, cols: 4 };
     }
 }
+
 
 function updateTitle() {
     gameTitle.innerText = `Fase ${currentPhase}`;
@@ -130,7 +119,6 @@ function disableCards() {
     firstCard.classList.add('disabled');
     secondCard.classList.add('disabled');
 
-
     firstCard.classList.add('bounce');
     secondCard.classList.add('bounce');
 
@@ -142,16 +130,18 @@ function disableCards() {
         secondCard.classList.remove('bounce');
     }, 300);
 
-    resetBoard();
-
     if (matchedCards === cards.length) {
         clearInterval(timerInterval);
         setTimeout(() => {
             showCongratsModal();
         }, 500);
-    }        
+    }  
+    
+    updateAccuracyDisplay();
+    resetBoard();
 }
 
+// Função que mostra o modal de congratulações e avança para a próxima fase
 function showCongratsModal() {
     const congratsModal = document.getElementById('congrats-modal');
     congratsModal.style.display = 'flex';
@@ -182,11 +172,13 @@ function generateCoins(cardElement) {
     setTimeout(() => coinContainer.remove(), 600);
 }
 
+// Garantindo que o modal de fim de jogo apareça corretamente após todas as fases serem completadas
 function nextPhase() {
+    phaseTimes.push(seconds); // Armazena o tempo da fase atual
+    clearInterval(timerInterval); // Para o cronômetro da fase
+
     currentPhase++;
-    playerScore++;
     updateScoreDisplay();
-    console.log(`Pontuação atual: ${playerScore}`);
 
     if (currentPhase > 3) {
         showGameCompletedModal();
@@ -195,24 +187,45 @@ function nextPhase() {
     }
 }
 
-function updateScoreDisplay() {
-    const scoreDisplay = document.getElementById('score-value');
-    scoreDisplay.innerText = playerScore;
-}
-
 function showGameCompletedModal() {
     const gameCompletedModal = document.getElementById('game-completed-modal');
     gameCompletedModal.style.display = 'flex';
 
-    startConfetti();
-    sendScoreToDatabase();
+    const total = phaseTimes.reduce((acc, time) => acc + time, 0);
+    const averageTime = total / phaseTimes.length;
+
+    sendAverageTimeToDatabase(averageTime); // Envia a média para o banco de dados
 
     const restartButton = document.getElementById('restart-button');
     restartButton.addEventListener('click', () => {
         gameCompletedModal.style.display = 'none';
-        stopConfetti();
         restartGame();
-    });
+   });
+
+   startConfetti();
+}
+
+function sendAverageTimeToDatabase(averageTime) {
+    const payload = {
+        playerId: "12345", // Identificação do jogador
+        averageTime: averageTime.toFixed(2), // Média com 2 casas decimais
+    };
+
+    fetch("https://api.example.com/average-time", { // URL do endpoint
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    })
+        .then((response) => {
+            if (response.ok) {
+                console.log("Média de tempo enviada com sucesso!");
+            } else {
+                console.error("Erro ao enviar a média de tempo.");
+            }
+        })
+        .catch((error) => console.error("Erro de rede:", error));
 }
 
 let confettiInterval;
@@ -248,6 +261,7 @@ function getRandomColor() {
 
 function restartGame() {
     currentPhase = 1;
+    phaseTimes = []; // Limpa os tempos das fases
     resetGame();
 }
 
@@ -274,15 +288,16 @@ let isTimedMode = true;
 
 function startTimer() {
     clearInterval(timerInterval);
-    seconds = 60;
-    timerDisplay.innerText = seconds;
+    seconds = 60; 
+    timerDisplay.innerText = seconds;  
 
+    // Definindo o intervalo para atualizar o cronômetro a cada segundo
     timerInterval = setInterval(() => {
-        seconds--;
-        timerDisplay.innerText = seconds;
-
-        if (isTimedMode && seconds <= 0) {
-            clearInterval(timerInterval);
+        if (seconds > 0) {
+            seconds--;
+            timerDisplay.innerText = seconds;
+        } else {
+            clearInterval(timerInterval); 
             endGameDueToTimeout();
         }
     }, 1000);
