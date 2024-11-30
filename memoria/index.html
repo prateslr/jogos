@@ -10,23 +10,13 @@
     <div id="confetti-container"></div>
 
     <div id="game">
-        <h1 id="gameTitle">Fase 1 </h1> <div id="score">Pontuação: <span id="score-value">0</span></div>
-
+        <h1 id="gameTitle">Fase 1</h1>
         <div id="timer">Tempo: <span id="time">0</span> segundos</div>
         <div id="board"></div>
         <div class="bottom">
             <button id="reset">Reiniciar Jogo</button>
-            <button id="toggleMode" style="display: none;">Modo: Speed</button>
         </div>
     </div>
-
-    <div id="time-up-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <img src="img/ampulhetapng" alt="ampulheta png">
-            <p>Mas você pode tentar novamente!</p>
-            <button id="retry-button">Tentar novamente</button>
-        </div>
-    </div>    
 
     <div id="congrats-modal" class="modal" style="display: none;">
         <div class="modal-content">
@@ -39,10 +29,41 @@
         <div class="modal-content">
             <img src="img/troféu.png" alt="troféu png">
             <p>Você completou todas as fases do jogo!</p>
-            <button id="restart-button">Voltar ao início</button>
+            <a href="../jogos.php">
+                <button id="restart-button">Voltar</button>
+            </a>
         </div>
     </div>    
     
     <script src="script.js"></script>
+    
+    <script>
+        const id_crianca = "<?php echo $id_crianca; ?>";
+    
+        // Agora você pode usar o jogadorId diretamente
+        console.log("ID do jogador logado:", id_crianca);
+    
+        // Função para salvar a média no banco
+        function salvarMediaBanco(media_time) {
+            fetch("salvarMedia.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: `media_time=${media_time}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log("Resposta do servidor:", data);
+            })
+            .catch(error => {
+                console.error("Erro ao salvar dados:", error);
+            });
+        }
+    
+        // Exemplo de uso
+        const media_time = 25.3; // Média do tempo calculada
+        salvarMediaBanco(media_time);
+    </script>
 </body>
 </html>

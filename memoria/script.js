@@ -1,3 +1,6 @@
+// ===============================
+// SEÇÃO: VARIÁVEIS GLOBAIS
+// ===============================
 const board = document.getElementById('board');
 const timerDisplay = document.getElementById('time');
 const resetButton = document.getElementById('reset');
@@ -10,87 +13,77 @@ let timerInterval;
 let seconds = 0;
 let currentPhase = 1;
 
-let phaseTimes = [];
+let memoriaScore = 0;
+let phaseTimes = []; // Armazena os tempos de cada fase
 
+// ===============================
+// SEÇÃO: CONFETES
+// ===============================
+function startConfetti() {
+    const confettiContainer = document.getElementById('confetti-container');
+    confettiContainer.innerHTML = '';
+
+    const confettiInterval = setInterval(() => {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.backgroundColor = getRandomColor();
+        confetti.style.animationDuration = Math.random() * 3 + 2 + "s";
+        confettiContainer.appendChild(confetti);
+
+        confetti.addEventListener('animationend', () => {
+            confetti.remove();
+        });
+    }, 100);
+}
+
+function stopConfetti() {
+    const confettiContainer = document.getElementById('confetti-container');
+    confettiContainer.innerHTML = '';
+}
+
+function getRandomColor() {
+    const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A6", "#FF5733", "#33FFF0"];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// ===============================
+// SEÇÃO: TIMER
+// ===============================
 function startTimer() {
     clearInterval(timerInterval);
-    seconds = 0;
-    timerDisplay.innerText = seconds;
+    seconds = 0; // Reseta o timer
 
     timerInterval = setInterval(() => {
-        seconds++;
-        timerDisplay.innerText = seconds;
+        seconds++; // Incrementa o tempo
+        timerDisplay.innerText = seconds; // Atualiza o display
     }, 1000);
 }
 
+function resetTimer() {
+    clearInterval(timerInterval);
+    seconds = 0;
+    timerDisplay.innerText = seconds;
+}
+
+function savePhaseTime() {
+    phaseTimes.push(seconds); // Armazena o tempo da fase atual
+}
+
+// ===============================
+// SEÇÃO: CARTAS
+// ===============================
 const cardValues = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
     'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
 ];
 
-function getGridDimensions(phase) {
-    switch(phase) {
-        case 1: return { rows: 2, cols: 4 };
-        case 2: return { rows: 3, cols: 4 };
-        case 3: return { rows: 4, cols: 4 };
-        default: return { rows: 2, cols: 4 };
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
-}
-
-
-function updateTitle() {
-    gameTitle.innerText = `Fase ${currentPhase}`;
-}
-
-const colors = [
-    '#418e8e', '#f07848', '#69d2cd', '#0f4ea8', '#FF8C33', '#8C33FF',
-    '#33FFF0', '#F0FF33', '#FF5733', '#33A6FF', '#FF3333', '#A6FF33'
-];
-
-function createBoard() {
-    board.innerHTML = '';
-    matchedCards = 0;
-
-    updateTitle();
-    const { rows, cols } = getGridDimensions(currentPhase);
-    const numPairs = (rows * cols) / 2;
-    const cardArray = [...cardValues.slice(0, numPairs), ...cardValues.slice(0, numPairs)];
-    cards = shuffleArray(cardArray);
-
-    board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-    board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-
-    const cardColorMap = {};
-    cardArray.slice(0, numPairs).forEach((value, index) => {
-        cardColorMap[value] = colors[index % colors.length];
-    });
-
-    cards.forEach(value => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-
-        const cardInner = document.createElement('div');
-        cardInner.classList.add('card-inner');
-
-        const cardFront = document.createElement('div');
-        cardFront.classList.add('card-front');
-        cardFront.innerText = '';
-
-        const cardBack = document.createElement('div');
-        cardBack.classList.add('card-back');
-        cardBack.innerText = value;
-        
-        cardBack.style.color = cardColorMap[value];
-
-        cardInner.appendChild(cardFront);
-        cardInner.appendChild(cardBack);
-        card.appendChild(cardInner);
-        card.setAttribute('data-value', value);
-        card.addEventListener('click', flipCard);
-        board.appendChild(card);
-    });
-
-    startTimer();
+    return array;
 }
 
 function flipCard() {
@@ -119,157 +112,16 @@ function disableCards() {
     firstCard.classList.add('disabled');
     secondCard.classList.add('disabled');
 
-    firstCard.classList.add('bounce');
-    secondCard.classList.add('bounce');
-
-    generateCoins(firstCard);
-    generateCoins(secondCard);
-
-    setTimeout(() => {
-        firstCard.classList.remove('bounce');
-        secondCard.classList.remove('bounce');
-    }, 300);
-
     if (matchedCards === cards.length) {
         clearInterval(timerInterval);
+        savePhaseTime(); // Salva o tempo da fase
         setTimeout(() => {
             showCongratsModal();
         }, 500);
     }  
-    
-    updateAccuracyDisplay();
+
     resetBoard();
 }
-
-// Função que mostra o modal de congratulações e avança para a próxima fase
-function showCongratsModal() {
-    const congratsModal = document.getElementById('congrats-modal');
-    congratsModal.style.display = 'flex';
-
-    setTimeout(() => {
-        congratsModal.style.display = 'none';
-        nextPhase();
-    }, 1000);
-}
-
-function generateCoins(cardElement) {
-    const coinContainer = document.createElement("div");
-    coinContainer.classList.add("coin-container");
-    cardElement.appendChild(coinContainer);
-
-    for (let i = 0; i < 8; i++) {
-        const coin = document.createElement("div");
-        coin.classList.add("coin");
-        
-        coin.style.setProperty('--coin-x', `${Math.random() * 40 - 20}px`);
-        coin.style.setProperty('--coin-y', `${Math.random() * 40 - 20}px`);
-        
-        coinContainer.appendChild(coin);
-
-        coin.addEventListener("animationend", () => coin.remove());
-    }
-
-    setTimeout(() => coinContainer.remove(), 600);
-}
-
-// Garantindo que o modal de fim de jogo apareça corretamente após todas as fases serem completadas
-function nextPhase() {
-    phaseTimes.push(seconds); // Armazena o tempo da fase atual
-    clearInterval(timerInterval); // Para o cronômetro da fase
-
-    currentPhase++;
-    updateScoreDisplay();
-
-    if (currentPhase > 3) {
-        showGameCompletedModal();
-    } else {
-        createBoard();
-    }
-}
-
-function showGameCompletedModal() {
-    const gameCompletedModal = document.getElementById('game-completed-modal');
-    gameCompletedModal.style.display = 'flex';
-
-    const total = phaseTimes.reduce((acc, time) => acc + time, 0);
-    const averageTime = total / phaseTimes.length;
-
-    sendAverageTimeToDatabase(averageTime); // Envia a média para o banco de dados
-
-    const restartButton = document.getElementById('restart-button');
-    restartButton.addEventListener('click', () => {
-        gameCompletedModal.style.display = 'none';
-        restartGame();
-   });
-
-   startConfetti();
-}
-
-function sendAverageTimeToDatabase(averageTime) {
-    const payload = {
-        playerId: "12345", // Identificação do jogador
-        averageTime: averageTime.toFixed(2), // Média com 2 casas decimais
-    };
-
-    fetch("https://api.example.com/average-time", { // URL do endpoint
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-    })
-        .then((response) => {
-            if (response.ok) {
-                console.log("Média de tempo enviada com sucesso!");
-            } else {
-                console.error("Erro ao enviar a média de tempo.");
-            }
-        })
-        .catch((error) => console.error("Erro de rede:", error));
-}
-
-let confettiInterval;
-
-function startConfetti() {
-    const confettiContainer = document.getElementById('confetti-container');
-    confettiContainer.innerHTML = '';
-    
-    confettiInterval = setInterval(() => {
-        const confetti = document.createElement('div');
-        confetti.classList.add('confetti');
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.backgroundColor = getRandomColor();
-        confetti.style.animationDuration = Math.random() * 3 + 2 + "s";
-        confettiContainer.appendChild(confetti);
-
-        confetti.addEventListener('animationend', () => {
-            confetti.remove();
-        });
-    }, 100);
-}
-
-function stopConfetti() {
-    clearInterval(confettiInterval);
-    const confettiContainer = document.getElementById('confetti-container');
-    confettiContainer.innerHTML = '';
-}
-
-function getRandomColor() {
-    const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A6", "#FF5733", "#33FFF0"];
-    return colors[Math.floor(Math.random() * colors.length)];
-}
-
-function restartGame() {
-    currentPhase = 1;
-    phaseTimes = []; // Limpa os tempos das fases
-    resetGame();
-}
-
-resetButton.addEventListener('click', () => {
-    clearInterval(timerInterval);
-    currentPhase = 1;
-    createBoard();
-});
 
 function unflipCards() {
     setTimeout(() => {
@@ -283,98 +135,146 @@ function resetBoard() {
     [firstCard, secondCard, lockBoard] = [null, null, false];
 }
 
-const toggleModeButton = document.getElementById('toggleMode');
-let isTimedMode = true;
+// ===============================
+// SEÇÃO: TABULEIRO E FASES
+// ===============================
+function getGridDimensions(phase) {
+    switch(phase) {
+        case 1: return { rows: 2, cols: 4 };
+        case 2: return { rows: 3, cols: 4 };
+        case 3: return { rows: 4, cols: 4 };
+        default: return { rows: 2, cols: 4 };
+    }
+}
 
-function startTimer() {
-    clearInterval(timerInterval);
-    seconds = 60; 
-    timerDisplay.innerText = seconds;  
+function updateTitle() {
+    gameTitle.innerText = `Fase ${currentPhase}`;
+}
 
-    // Definindo o intervalo para atualizar o cronômetro a cada segundo
-    timerInterval = setInterval(() => {
-        if (seconds > 0) {
-            seconds--;
-            timerDisplay.innerText = seconds;
-        } else {
-            clearInterval(timerInterval); 
-            endGameDueToTimeout();
-        }
+function createBoard() {
+    board.innerHTML = '';
+    matchedCards = 0;
+    resetTimer(); // Reseta o timer ao criar o tabuleiro
+    updateTitle();
+
+    const { rows, cols } = getGridDimensions(currentPhase);
+    const numPairs = (rows * cols) / 2;
+    const cardArray = [...cardValues.slice(0, numPairs), ...cardValues.slice(0, numPairs)];
+    cards = shuffleArray(cardArray);
+
+    board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+    cards.forEach(value => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+
+        const cardInner = document.createElement('div');
+        cardInner.classList.add('card-inner');
+
+        const cardFront = document.createElement('div');
+        cardFront.classList.add('card-front');
+        cardFront.innerText = '';
+
+        const cardBack = document.createElement('div');
+        cardBack.classList.add('card-back');
+        cardBack.innerText = value;
+
+        cardInner.appendChild(cardFront);
+        cardInner.appendChild(cardBack);
+        card.appendChild(cardInner);
+        card.setAttribute('data-value', value);
+        card.addEventListener('click', flipCard);
+        board.appendChild(card);
+    });
+
+    startTimer(); // Inicia o timer ao criar o tabuleiro
+}
+
+function nextPhase() {
+    currentPhase++;
+    memoriaScore++;
+    if (currentPhase > 3) {
+        showGameCompletedModal();
+    } else {
+        createBoard();
+    }
+}
+
+function restartGame() {
+    currentPhase = 1;
+    phaseTimes = []; // Reseta os tempos
+    createBoard();
+}
+
+resetButton.addEventListener('click', () => {
+    clearInterval(timerInterval); // Para o cronômetro
+    stopConfetti(); // Para os confetes
+    restartGame(); // Reinicia o jogo
+});
+
+// ===============================
+// SEÇÃO: MODAIS
+// ===============================
+function showCongratsModal() {
+    const congratsModal = document.getElementById('congrats-modal');
+    congratsModal.style.display = 'flex';
+
+    setTimeout(() => {
+        congratsModal.style.display = 'none';
+        nextPhase();
     }, 1000);
 }
 
-function endGameDueToTimeout() {
-    lockBoard = true;
-    const timeUpModal = document.getElementById('time-up-modal');
-    timeUpModal.style.display = 'flex';
+function showGameCompletedModal() {
+    const gameCompletedModal = document.getElementById('game-completed-modal');
+    gameCompletedModal.style.display = 'flex';
 
-    const retryButton = document.getElementById('retry-button');
-    retryButton.addEventListener('click', () => {
-        timeUpModal.style.display = 'none';
-        resetGame();
+    startConfetti();
+    sendScoreToDatabase();
+
+    const restartButton = document.getElementById('restart-button');
+    restartButton.addEventListener('click', () => {
+        gameCompletedModal.style.display = 'none';
+        stopConfetti();
+        restartGame();
     });
 }
 
-function showTimeUpModal() {
-    const timeUpModal = document.getElementById('time-up-modal');
-    timeUpModal.style.display = 'flex';
+// ===============================
+// SEÇÃO: BANCO DE DADOS
+// ===============================
+function sendScoreToDatabase() {
+    const averageTime = (phaseTimes.reduce((a, b) => a + b, 0) / phaseTimes.length).toFixed(2); // Média dos tempos
 
-    const retryButton = document.getElementById('retry-button');
-    retryButton.addEventListener('click', () => {
-        timeUpModal.style.display = 'none';
-        resetGame();
-    });
+    const payload = {
+        score: memoriaScore,
+        averageTime: averageTime, // Média dos tempos
+        memoriaId: "12345"
+    };
+
+    fetch("http://localhost:3000/scores", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    })
+    .then((response) => {
+        if (response.ok) {
+            console.log("Dados enviados com sucesso!");
+        } else {
+            console.error("Erro ao enviar dados.");
+        }
+    })
+    .catch((error) => console.error("Erro de rede:", error));
 }
 
-function resetGame() {
-    clearInterval(timerInterval);
-    lockBoard = false;
-    createBoard();
-}
-
+// ===============================
+// SEÇÃO: INICIALIZAÇÃO DO JOGO
+// ===============================
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('time-up-modal').style.display = 'none';
-    document.getElementById('congrats-modal').style.display = 'none';
-});
-
-resetButton.addEventListener('click', resetGame);
-
-createBoard();
-
-resetButton.addEventListener('click', () => {
-    clearInterval(timerInterval);
-    currentPhase = 1;
     createBoard();
 });
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-function playCelebration() {
-    const celebrationSound = document.getElementById("celebration-sound");
-    celebrationSound.play();
-
-    const confettiContainer = document.getElementById("confetti-container");
-    confettiContainer.innerHTML = "";
-
-    for (let i = 0; i < 100; i++) {
-        const confetti = document.createElement("div");
-        confetti.classList.add("confetti");
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.backgroundColor = getRandomColor();
-        confetti.style.animationDuration = Math.random() * 3 + 2 + "s";
-        confettiContainer.appendChild(confetti);
-    }
-}
-
-function getRandomColor() {
-    const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A6", "#FF5733", "#33FFF0"];
-    return colors[Math.floor(Math.random() * colors.length)];
-}
 
 createBoard();
